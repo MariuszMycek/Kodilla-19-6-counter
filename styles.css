@@ -42,11 +42,16 @@
     text-align: center;
     font-size: 36px;
     height: 80px;
+    line-height: 80px;
 }
 
 .results {
     font-size: 20px;
     color: inherit;
+}
+
+.results h4 {
+    margin-left: 40px;
 }
 
 .results li {

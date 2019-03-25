@@ -1,24 +1,41 @@
 class Stopwatch extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      running: false,
       minutes: 0,
       seconds: 0,
-      miliseconds: 0
+      miliseconds: 0,
+      running: false,
+      lapTimes: []
     };
   }
 
-  handleOnClick = e => {
-    this.setState({ running: false });
+  componentDidMount = () => {
+    this.watch = setInterval(() => {
+      if (this.state.running) {
+        this.calculate();
+      }
+    }, 10);
   };
-  // reset = () => {
-  //   this.setState({
-  //     minutes: 0},{
-  //     seconds: 0},{
-  //     miliseconds: 0
-  //   });
-  // };
+
+  componentWillUnmount() {
+    clearInterval(this.watch);
+  }
+
+  start = () => this.setState({ running: true });
+
+  stop = () => this.setState({ running: false });
+
+  reset = () => {
+    if (!this.state.running) {
+      this.setState({
+        minutes: 0,
+        seconds: 0,
+        miliseconds: 0,
+        lapTimes: []
+      });
+    }
+  };
 
   format() {
     function pad0(value) {
@@ -33,87 +50,69 @@ class Stopwatch extends React.Component {
     )}`;
   }
 
-  // start() {
-  //   if (!this.running) {
-  //     this.running = true;
-  //     this.watch = setInterval(() => this.step(), 10);
-  //   }
-  // }
-  // step() {
-  //   if (!this.running) return;
-  //   this.calculate();
-  //   this.print();
-  // }
-  // calculate() {
-  //   this.times.miliseconds += 1;
-  //   if (this.times.miliseconds >= 100) {
-  //     this.times.seconds += 1;
-  //     this.times.miliseconds = 0;
-  //   }
-  //   if (this.times.seconds >= 60) {
-  //     this.times.minutes += 1;
-  //     this.times.seconds = 0;
-  //   }
-  // }
-  // stop() {
-  //   this.running = false;
-  //   clearInterval(this.watch);
-  // }
-  // resetStopwatch() {
-  //   if (!this.running) {
-  //     this.reset();
-  //     this.print();
-  //     this.resetLaps();
-  //   }
-  // }
-  // lapTime() {
-  //   if (this.running) {
-  //     const lapTime = document.createElement("li");
-  //     lapTime.innerHTML = this.format(this.times);
-  //     const results = document.querySelector("ol.results");
-  //     results.appendChild(lapTime);
-  //   }
-  // }
-  // resetLaps() {
-  //   if (!this.running) {
-  //     const results = document.querySelector("ol.results");
-  //     while (results.children.length > 1) {
-  //       results.removeChild(results.lastChild);
-  //     }
-  //   }
-  // }
+  calculate = () => {
+    this.setState({ miliseconds: this.state.miliseconds + 1 });
+
+    if (this.state.miliseconds >= 100) {
+      this.setState({
+        seconds: this.state.seconds + 1,
+        miliseconds: 0
+      });
+    }
+    if (this.state.seconds >= 60) {
+      this.setState({
+        minutes: this.state.minutes + 1,
+        seconds: 0
+      });
+    }
+  };
+
+  lapTime = () => {
+    const lap = this.format();
+    if (this.state.running) {
+      this.setState({ lapTimes: [...this.state.lapTimes, lap] });
+      console.log(this.state.lapTimes);
+    }
+  };
+
+  resetLaps = () => {
+    this.setState({ lapTimes: [] });
+  };
 
   render() {
+    const lapList = this.state.lapTimes.map(item => {
+      return <li key={item}>{item}</li>;
+    });
     return (
       <div className="counter">
         <nav className="controls">
-          <a href="#" className="button">
+          <a href="#" className="button" onClick={this.start}>
             Start
           </a>
-          <a href="#" className="button">
+          <a href="#" className="button" onClick={this.stop}>
             Stop
           </a>
-          <a
-            href="#"
-            className="button"
-            // onClick={this.reset()}
-          >
-            Reset
+          <a href="#" className="button" onClick={this.reset}>
+            Reset All
           </a>
-          <a href="#" className="button">
+          <a href="#" className="button" onClick={this.lapTime}>
             Lap
           </a>
-          <a href="#" className="button">
+          <a href="#" className="button" onClick={this.resetLaps}>
             Reset Laps
           </a>
         </nav>
-        <div className="stopwatch">{this.format}</div>
-        <ol className="results">
+        <div className="stopwatch" id="watch">
+          {this.format()}
+        </div>
+        <div className="results">
           <h4>Laps: </h4>
-        </ol>
+          <ol>{lapList}</ol>
+        </div>
       </div>
     );
   }
 }
+
 const app = React.createElement(Stopwatch);
 ReactDOM.render(app, document.getElementById("app"));
