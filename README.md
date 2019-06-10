@@ -1,1 +1,1 @@
-https://mariuszmycek.github.io/Kodilla-19-6/
+https://mariuszmycek.github.io/Kodilla-19-6-counter/
